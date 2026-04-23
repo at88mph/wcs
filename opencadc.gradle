@@ -76,3 +76,19 @@ intTest {
         // "STARTED",
     }
 }
+
+pluginManager.withPlugin('maven-publish') {
+    // configure maven-publish to support publishToMavenLocal
+    publishing {
+        publications {
+            thisLibrary(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+}
+
+// backwards compat usage
+tasks.register('install') {
+    dependsOn 'publishToMavenLocal'
+}

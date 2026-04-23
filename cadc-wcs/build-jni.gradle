@@ -4,8 +4,6 @@ import org.gradle.internal.os.OperatingSystem
 plugins {
     id 'c'
     id 'java'
-    id 'maven'
-    id 'application'
     id 'maven-publish'
 }
 
@@ -14,9 +12,12 @@ repositories {
     mavenLocal()
 }
 
-sourceCompatibility = 1.8
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 group = 'org.opencadc'
-version = '2.1.0'
+version = '2.3.0'
 
 dependencies {
     implementation 'log4j:log4j:1.2.17'
@@ -50,6 +51,10 @@ def getSOFileLocation() {
 
     if (!soFile.exists()) {
         soFile = file('/usr/local/lib/libwcs.dylib')
+    }
+
+    if (!soFile.exists()) {
+        soFile = file('/opt/homebrew/lib/libwcs.dylib')
     }
 
     if (!soFile.exists()) {
@@ -92,8 +97,10 @@ model {
             // Linux compatible flags only.  This will likely never run on MacOS or Windows due to linkage issues.
             binaries.all {
                 if (os.contains("os x")) {
-                    cCompiler.args '-mmacosx-version-min=11.0'
-                    linker.args '-mmacos-version-min=11.0'
+                    cCompiler.args '-mmacosx-version-min=11.0',
+                            '-I/opt/homebrew/include',
+                            '-I/usr/local/include'
+                    linker.args '-mmacosx-version-min=11.0'
                 } else {
                     cCompiler.args '-fexceptions',
                             '-ansi',
@@ -109,13 +116,13 @@ model {
     }
 }
 
-task generateJniHeaders(type: JavaCompile) {
+tasks.register('generateJniHeaders', JavaCompile) {
     classpath = sourceSets.main.compileClasspath
-    destinationDir file("${tmpBuildDir}")
+    destinationDirectory = file("${tmpBuildDir}")
     source = sourceSets.main.java
     options.compilerArgs += [
-            '-h', file("${tmpBuildDir}"),
-            '-d', file("${tmpBuildDir}")
+            '-h', file("${tmpBuildDir}").absolutePath,
+            '-d', file("${tmpBuildDir}").absolutePath
     ]
 }
 
@@ -140,6 +147,6 @@ task assembleSharedJar(type: Jar) {
 // - jar construction
 //
 jar.enabled = false
-classes.dependsOn generateJniHeaders
+classes.dependsOn('generateJniHeaders')
 assembleSharedJar.dependsOn copySharedLibrary
 compileTestJava.dependsOn copySharedLibrary, assembleSharedJar
