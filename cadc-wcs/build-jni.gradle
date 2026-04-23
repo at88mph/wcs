@@ -1,5 +1,4 @@
 import org.gradle.internal.jvm.Jvm
-import org.gradle.internal.os.OperatingSystem
 
 plugins {
     id 'c'
@@ -32,7 +31,7 @@ def baseHeadersDir = "${Jvm.current().javaHome}/include"
 def os = System.getProperty("os.name").toLowerCase()
 
 test {
-    systemProperty "java.library.path", "/usr/local/lib:/usr/lib:/usr/lib64:" + System.getProperty("java.io.tmpdir")
+    systemProperty "java.library.path", "/usr/local/lib:/usr/lib:/usr/lib64:/opt/homebrew/lib:" + System.getProperty("java.io.tmpdir")
 }
 
 def getSOFileLocation() {
@@ -126,7 +125,7 @@ tasks.register('generateJniHeaders', JavaCompile) {
     ]
 }
 
-task copySharedLibrary(type: Copy) {
+tasks.register('copySharedLibrary', Copy) {
     if (os.contains("os x")) {
         from "${buildDir}/libs/wcsLibJNI/shared/libwcsLibJNI.dylib"        // gradle >= 3
         into file("${buildDir}/classes/java/main/")
@@ -136,8 +135,9 @@ task copySharedLibrary(type: Copy) {
     }
 }
 
-task assembleSharedJar(type: Jar) {
+tasks.register('assembleSharedJar', Jar) {
     from(sourceSets.main.output)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 // change the default order of task execution so it does:
@@ -148,5 +148,5 @@ task assembleSharedJar(type: Jar) {
 //
 jar.enabled = false
 classes.dependsOn('generateJniHeaders')
-assembleSharedJar.dependsOn copySharedLibrary
-compileTestJava.dependsOn copySharedLibrary, assembleSharedJar
+assembleSharedJar.dependsOn('copySharedLibrary')
+compileTestJava.dependsOn('copySharedLibrary', 'assembleSharedJar')

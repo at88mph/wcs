@@ -1,10 +1,8 @@
 import org.gradle.internal.jvm.Jvm
-import org.gradle.internal.os.OperatingSystem
 
 plugins {
     id 'c'
     id 'java'
-    id 'maven'
     id 'application'
     id 'maven-publish'
 }
@@ -14,13 +12,16 @@ repositories {
     mavenLocal()
 }
 
-sourceCompatibility = 1.8
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 group = 'org.opencadc'
 version = '1.0'
 
 dependencies {
     implementation 'log4j:log4j:1.2.17'
-    implementation 'org.opencadc:cadc-util:[1.3.13,2.0.0)'
+    implementation 'org.opencadc:cadc-util:[1.12.5,2.0.0)'
     implementation 'org.opencadc:cadc-log:[1.1.3,2.0.0)'
 
     testImplementation 'junit:junit:[4.13,5.0]'
@@ -31,7 +32,7 @@ def baseHeadersDir = "${Jvm.current().javaHome}/include"
 def os = System.getProperty("os.name").toLowerCase()
 
 test {
-    systemProperty "java.library.path", "/usr/local/lib:/usr/lib:/usr/lib64:" + System.getProperty("java.io.tmpdir")
+    systemProperty "java.library.path", "/usr/local/lib:/usr/lib:/usr/lib64:/opt/homebrew/lib:" + System.getProperty("java.io.tmpdir")
 }
 
 def getSOFileLocation() {
@@ -50,6 +51,12 @@ def getSOFileLocation() {
 
     if (!soFile.exists()) {
         soFile = file('/usr/local/lib/liberfa.dylib')
+    }
+
+    // While not officially available via Homebrew, some users may have built and installed liberfa themselves, which
+    // will install to the Homebrew location.  Check for it there as well.
+    if (!soFile.exists()) {
+        soFile = file('/opt/homebrew/lib/liberfa.dylib')
     }
 
     if (!soFile.exists()) {
@@ -92,8 +99,10 @@ model {
             // Linux compatible flags only.  This will likely never run on MacOS or Windows due to linkage issues.
             binaries.all {
                 if (os.contains("os x")) {
-                    cCompiler.args '-mmacosx-version-min=10.9'
-                    linker.args '-mmacos-version-min=10.9'
+                    cCompiler.args '-mmacosx-version-min=11.0',
+                            '-I/opt/homebrew/include',
+                            '-I/usr/local/include'
+                    linker.args '-mmacos-version-min=11.0'
                 } else {
                     cCompiler.args '-fexceptions',
                             '-ansi',
@@ -109,7 +118,7 @@ model {
     }
 }
 
-task generateJniHeaders(type: JavaCompile) {
+tasks.register('generateJniHeaders', JavaCompile) {
     classpath = sourceSets.main.compileClasspath
     destinationDir file("${tmpBuildDir}")
     source = sourceSets.main.java
@@ -119,7 +128,7 @@ task generateJniHeaders(type: JavaCompile) {
     ]
 }
 
-task copySharedLibrary(type: Copy) {
+tasks.register('copySharedLibrary', Copy) {
     if (os.contains("os x")) {
         from "${buildDir}/resources/main/liberfaLibJNI.dylib"       // gradle >= 3
         into file("${buildDir}/classes/java/main/")
@@ -129,8 +138,9 @@ task copySharedLibrary(type: Copy) {
     }
 }
 
-task assembleSharedJar(type: Jar) {
+tasks.register('assembleSharedJar', Jar) {
     from(sourceSets.main.output)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 // change the default order of task execution so it does:
@@ -140,6 +150,11 @@ task assembleSharedJar(type: Jar) {
 // - jar construction
 //
 jar.enabled = false
-classes.dependsOn generateJniHeaders
-assembleSharedJar.dependsOn copySharedLibrary
-compileTestJava.dependsOn copySharedLibrary, assembleSharedJar
+
+classes.dependsOn('generateJniHeaders')
+copySharedLibrary.dependsOn('processResources')
+startScripts.dependsOn('assembleSharedJar') 
+assembleSharedJar.dependsOn('copySharedLibrary')
+compileTestJava.dependsOn('copySharedLibrary', 'assembleSharedJar')
+distZip.dependsOn('assembleSharedJar')
+distTar.dependsOn('assembleSharedJar')
