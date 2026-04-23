@@ -16,11 +16,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 group = 'org.opencadc'
-version = '2.3.0'
+version = '2.2.1'
 
 dependencies {
-    implementation 'log4j:log4j:1.2.17'
-    implementation 'org.opencadc:cadc-util:[1.3.13,2.0.0)'
+    implementation 'org.opencadc:cadc-util:[1.12.5,2.0.0)'
     implementation 'org.opencadc:cadc-log:[1.1.3,2.0.0)'
 
     testImplementation 'junit:junit:[4.13,5.0]'
