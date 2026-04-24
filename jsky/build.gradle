@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'maven'
     id 'maven-publish'
 }
 
@@ -9,10 +8,12 @@ repositories {
     mavenLocal()
 }
 
-sourceCompatibility = 1.8
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
 group = 'org.opencadc'
-
 version = '1.0.0'
 
 dependencies {
