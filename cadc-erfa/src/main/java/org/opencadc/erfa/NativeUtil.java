@@ -82,8 +82,7 @@ import org.apache.log4j.Logger;
  *
  * @author pdowler
  */
-public class NativeUtil
-{
+public class NativeUtil {
     private static final Logger log = Logger.getLogger(NativeUtil.class);
     private static String extension = ".so";
 
@@ -96,38 +95,37 @@ public class NativeUtil
         }
     }
 
-    private NativeUtil() { }
+    private NativeUtil() {
+    }
 
     static void loadJNI(ClassLoader cl, String name)
-        throws NativeInitializationException
-    {
+        throws NativeInitializationException {
         final UUID uuid = UUID.randomUUID();
         File tmpdir = new File(System.getProperty("java.io.tmpdir"));
         File tmp = new File(tmpdir, name + "-" + uuid + extension);
 
-        try
-        {
+        try {
             String soname = name + extension;
             URL url = cl.getResource(soname);
 
-            if (url == null)
+            if (url == null) {
                 throw new NativeInitializationException("not found via ClassLoader: " + soname);
+            }
 
             log.debug("found: " + url);
-            if (tmp.exists())
+            if (tmp.exists()) {
                 // already been here: impossible?
                 throw new NativeInitializationException("found pre-existing " + tmp.getAbsolutePath());
+            }
 
-            try
-            {
+            try {
                 URLConnection uc = url.openConnection();
                 uc.setUseCaches(false);
                 InputStream istream = uc.getInputStream();
                 FileOutputStream ostream = new FileOutputStream(tmp);
                 byte[] buf = new byte[65536];
                 int nb = istream.read(buf);
-                while (nb != -1)
-                {
+                while (nb != -1) {
                     ostream.write(buf, 0, nb);
                     nb = istream.read(buf);
                 }
@@ -136,20 +134,15 @@ public class NativeUtil
 
                 System.load(tmp.getAbsolutePath());
                 log.debug("loaded: " + tmp.getAbsolutePath());
-            }
-            finally
-            {
-                if (tmp.exists())
+            } finally {
+                if (tmp.exists()) {
                     tmp.deleteOnExit();
+                }
             }
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             log.error("failed to load shared lib", ex);
             throw new NativeInitializationException("failed to create temporary file: " + tmp.getAbsolutePath(), ex);
-        }
-        catch (Error e)
-        {
+        } catch (Error e) {
             log.error("failed to load shared library: " + tmp);
             throw new NativeInitializationException("failed to load shared lib: " + name, e);
         }

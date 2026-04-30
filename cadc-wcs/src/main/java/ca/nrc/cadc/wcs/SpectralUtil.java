@@ -72,10 +72,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SpectralUtil {
-    final static List<String> SPECTRAL_CTYPES = Arrays.asList("FREQ", "ENER", "WAVN", "VRAD", "WAVE", "VOPT", "ZOPT",
+    static final List<String> SPECTRAL_CTYPES = Arrays.asList("FREQ", "ENER", "WAVN", "VRAD", "WAVE", "VOPT", "ZOPT",
                                                               "AWAV", "VELO", "BETA");
 
-    final static List<String> SPECTRAL_CUNITS = Arrays.asList("Hz", "kHz", "MHz", "GHz", "eV", "keV", "MeV", "GeV", "m",
+    static final List<String> SPECTRAL_CUNITS = Arrays.asList("Hz", "kHz", "MHz", "GHz", "eV", "keV", "MeV", "GeV", "m",
                                                               "cm", "mm", "um", "µm", "nm", "Angstrom", "A", "J", "/m",
                                                               "m/s", "km/s", "rad/s");
 

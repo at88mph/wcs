@@ -75,17 +75,14 @@ import org.apache.log4j.Logger;
  *
  * @author pdowler
  */
-public class NativeInitializationException extends Exception
-{
+public class NativeInitializationException extends Exception {
     private static final Logger log = Logger.getLogger(NativeInitializationException.class);
 
-    public NativeInitializationException(String msg)
-    {
+    public NativeInitializationException(String msg) {
         super(msg);
     }
     
-    public NativeInitializationException(String msg, Throwable cause) 
-    {
+    public NativeInitializationException(String msg, Throwable cause) {
         super(msg, cause);
     }
 }

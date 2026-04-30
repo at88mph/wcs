@@ -309,8 +309,8 @@ final class WCSLib {
      * @param psv PSi_ma - Parameter value.
      * @param cd CDi_j - Spectrum coordinate matrix.
      * @param crota CROTAi - Coordinate rotation.
-     * @param spectral_axis Spectral axis (set to -1 to allow wcslib to locate).
-     * @param spectral_ctype Desired spectral ctype.
+     * @param spectralAxis Spectral axis (set to -1 to allow wcslib to locate).
+     * @param spectralCtype Desired spectral ctype.
      * @return Pixel coordinates.
      * @throws WCSLibInitializationException if initialization of the WCSLIB C wcsprm struct fails.
      * @throws WCSLibRuntimeException if WCSLIB method execution fails.
@@ -318,15 +318,15 @@ final class WCSLib {
     protected static int translate(int naxis, double[] crpix, double[] pc, double[] cdelt, double[] crval,
                                    String[] cunit, String[] ctype, double[] lonpole, double[] latpole, double[] restfrq,
                                    double[] restwav, int[] pvi, int[] pvm, double[] pvv, int[] psi, int[] psm,
-                                   String[] psv, double[] cd, double[] crota, int spectral_axis,
-                                   String spectral_ctype) {
+                                   String[] psv, double[] cd, double[] crota, int spectralAxis,
+                                   String spectralCtype) {
         // Bug fix for wcslib 6 only to check for invalid spectral CUNIT's
         // which cause a segmentation fault.
         // JB 2021.07.09
         SpectralUtil.isValidCunit(ctype, cunit);
 
         int status = wcssptr(naxis, crpix, pc, cdelt, crval, cunit, ctype, lonpole, latpole, restfrq, restwav, pvi, pvm,
-                             pvv, psi, psm, psv, cd, crota, spectral_axis, spectral_ctype);
+                             pvv, psi, psm, psv, cd, crota, spectralAxis, spectralCtype);
 
         if (status == 0) {
             return status;
@@ -344,8 +344,8 @@ final class WCSLib {
      * using the WCSLIB 4.2 wcsp2s() C method.
      *
      * @return native method status value, 0 indicates success, other values
-     * indicate a problem during method exection. The STATUS_ERRORS
-     * array maps the status value to an error message.
+     *      indicate a problem during method exection. The STATUS_ERRORS
+     *      array maps the status value to an error message.
      */
     private static native int wcsp2s(int naxis, double[] crpix, double[] pc, double[] cdelt, double[] crval,
                                      String[] cunit, String[] ctype, double[] lonpole, double[] latpole,
@@ -358,8 +358,8 @@ final class WCSLib {
      * using the WCSLIB 4.2 wcss2p() C method.
      *
      * @return native method status value, 0 indicates success, other values
-     * indicate a problem during method exection. The STATUS_ERRORS
-     * array maps the status value to an error message.
+     *      indicate a problem during method exection. The STATUS_ERRORS
+     *      array maps the status value to an error message.
      */
     private static native int wcss2p(int naxis, double[] crpix, double[] pc, double[] cdelt, double[] crval,
                                      String[] cunit, String[] ctype, double[] lonpole, double[] latpole,
@@ -372,13 +372,13 @@ final class WCSLib {
      * using the WCSLIB 4.2 wcssptr() C method.
      *
      * @return native method status value, 0 indicates success, other values
-     * indicate a problem during method exection. The STATUS_ERRORS
-     * array maps the status value to an error message.
+     *      indicate a problem during method exection. The STATUS_ERRORS
+     *      array maps the status value to an error message.
      */
     private static native int wcssptr(int naxis, double[] crpix, double[] pc, double[] cdelt, double[] crval,
                                       String[] cunit, String[] ctype, double[] lonpole, double[] latpole,
                                       double[] restfrq, double[] restwav, int[] pvi, int[] pvm, double[] pvv, int[] psi,
-                                      int[] psm, String[] psv, double[] cd, double[] crota, int spectral_axis,
-                                      String spectral_type);
+                                      int[] psm, String[] psv, double[] cd, double[] crota, int spectralAxis,
+                                      String spectralType);
 
 }

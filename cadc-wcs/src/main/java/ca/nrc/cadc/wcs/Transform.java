@@ -371,11 +371,11 @@ public class Transform {
      */
     public Result pix2sky(double[] pixcrd) {
         // Change TNX to TAN in ctype.
-        String[] _ctype = (String[]) ctype.clone();
-        changeTNXToTAN(_ctype);
+        String[] ctype = (String[]) this.ctype.clone();
+        changeTNXToTAN(ctype);
 
         synchronized (WCSLib.class) {
-            return WCSLib.pix2sky(naxis, crpix, pc, cdelt, crval, cunit, _ctype, lonpole, latpole, restfrq, restwav,
+            return WCSLib.pix2sky(naxis, crpix, pc, cdelt, crval, cunit, ctype, lonpole, latpole, restfrq, restwav,
                                   pvi, pvm, pvv, psi, psm, psv, cd, crota, pixcrd);
         }
     }
@@ -389,11 +389,11 @@ public class Transform {
      */
     public Result sky2pix(double[] world) {
         // Change TNX to TAN in ctype.
-        String[] _ctype = (String[]) ctype.clone();
-        changeTNXToTAN(_ctype);
+        String[] ctype = (String[]) this.ctype.clone();
+        changeTNXToTAN(ctype);
 
         synchronized (WCSLib.class) {
-            return WCSLib.sky2pix(naxis, crpix, pc, cdelt, crval, cunit, _ctype, lonpole, latpole, restfrq, restwav,
+            return WCSLib.sky2pix(naxis, crpix, pc, cdelt, crval, cunit, ctype, lonpole, latpole, restfrq, restwav,
                                   pvi, pvm, pvv, psi, psm, psv, cd, crota, world);
         }
     }
@@ -405,47 +405,47 @@ public class Transform {
      * characters are specified as "???", or if just the eighth character
      * is specified as '?', the correct algorithm code will be substituted and returned.
      *
-     * @param spectral_ctype spectral CTYPE.
+     * @param spectralCtype spectral CTYPE.
      * @return the translated WCSKeywords.
      */
-    public WCSKeywords translate(String spectral_ctype) {
+    public WCSKeywords translate(String spectralCtype) {
         // Spectral ctype must be 8 characters or less
-        if (spectral_ctype.length() > 8) {
+        if (spectralCtype.length() > 8) {
             throw new IllegalArgumentException("Spectral ctype must be 8 or less characters.");
         }
 
         // Make copies of crpix, cdelt, crval, cunit, ctype, lonpole, latpole, restfrq, restwav
         // to pass as parameters.
-        double[] _crpix = crpix == null ? null : (double[]) crpix.clone();
-        double[] _cdelt = cdelt == null ? null : (double[]) cdelt.clone();
-        double[] _crval = crval == null ? null : (double[]) crval.clone();
-        String[] _cunit = cunit == null ? null : (String[]) cunit.clone();
-        String[] _ctype = ctype == null ? null : (String[]) ctype.clone();
-        double[] _lonpole = lonpole == null ? null : (double[]) lonpole.clone();
-        double[] _latpole = latpole == null ? null : (double[]) latpole.clone();
-        double[] _restfrq = restfrq == null ? null : (double[]) restfrq.clone();
-        double[] _restwav = restwav == null ? null : (double[]) restwav.clone();
+        double[] crpix = this.crpix == null ? null : (double[]) this.crpix.clone();
+        double[] cdelt = this.cdelt == null ? null : (double[]) this.cdelt.clone();
+        double[] crval = this.crval == null ? null : (double[]) this.crval.clone();
+        String[] cunit = this.cunit == null ? null : (String[]) this.cunit.clone();
+        String[] ctype = this.ctype == null ? null : (String[]) this.ctype.clone();
+        double[] lonpole = this.lonpole == null ? null : (double[]) this.lonpole.clone();
+        double[] latpole = this.latpole == null ? null : (double[]) this.latpole.clone();
+        double[] restfrq = this.restfrq == null ? null : (double[]) this.restfrq.clone();
+        double[] restwav = this.restwav == null ? null : (double[]) this.restwav.clone();
 
         // Change TNX to TAN in ctype.
-        changeTNXToTAN(_ctype);
+        changeTNXToTAN(ctype);
 
         synchronized (WCSLib.class) {
-            WCSLib.translate(naxis, _crpix, pc, _cdelt, _crval, _cunit, _ctype, _lonpole, _latpole, _restfrq, _restwav,
-                             pvi, pvm, pvv, psi, psm, psv, cd, crota, spectralAxis, spectral_ctype);
+            WCSLib.translate(naxis, crpix, pc, cdelt, crval, cunit, ctype, lonpole, latpole, restfrq, restwav,
+                             pvi, pvm, pvv, psi, psm, psv, cd, crota, spectralAxis, spectralCtype);
         }
 
         WCSKeywords wcs = keywordsCopy();
-        if (_lonpole[0] != WCSLib.UNDEFINED) {
-            wcs.put("LONPOLE", _lonpole[0]);
+        if (lonpole[0] != WCSLib.UNDEFINED) {
+            wcs.put("LONPOLE", lonpole[0]);
         }
-        if (_latpole[0] != WCSLib.UNDEFINED) {
-            wcs.put("LATPOLE", _latpole[0]);
+        if (latpole[0] != WCSLib.UNDEFINED) {
+            wcs.put("LATPOLE", latpole[0]);
         }
-        if (_restfrq[0] != WCSLib.UNDEFINED) {
-            wcs.put("RESTFRQ", _restfrq[0]);
+        if (restfrq[0] != WCSLib.UNDEFINED) {
+            wcs.put("RESTFRQ", restfrq[0]);
         }
-        if (_restwav[0] != WCSLib.UNDEFINED) {
-            wcs.put("RESTWAV", _restwav[0]);
+        if (restwav[0] != WCSLib.UNDEFINED) {
+            wcs.put("RESTWAV", restwav[0]);
         }
 
         int index = 0;
@@ -463,24 +463,24 @@ public class Transform {
         for (int i = 0; i < naxis; i++) {
             int axis = i + 1;
 
-            if (_crpix != null) {
-                wcs.put("CRPIX" + axis, _crpix[i]);
+            if (crpix != null) {
+                wcs.put("CRPIX" + axis, crpix[i]);
             }
 
-            if (_cdelt != null) {
-                wcs.put("CDELT" + axis, _cdelt[i]);
+            if (cdelt != null) {
+                wcs.put("CDELT" + axis, cdelt[i]);
             }
 
-            if (_crval != null) {
-                wcs.put("CRVAL" + axis, _crval[i]);
+            if (crval != null) {
+                wcs.put("CRVAL" + axis, crval[i]);
             }
 
-            if (_cunit != null) {
-                wcs.put("CUNIT" + axis, _cunit[i]);
+            if (cunit != null) {
+                wcs.put("CUNIT" + axis, cunit[i]);
             }
 
-            if (_ctype != null) {
-                wcs.put("CTYPE" + axis, _ctype[i]);
+            if (ctype != null) {
+                wcs.put("CTYPE" + axis, ctype[i]);
             }
 
             if (crota != null) {
