@@ -108,13 +108,20 @@ public class WCSKeywordsImpl implements WCSKeywords, Serializable {
 
     /**
      * Add a String keyword to keywords.
+     * <p>
+     * According to the FITS/WCS standard some string-valued keywords are
+     * permitted to have an empty value field.  In certain cases it's essential, such as a CUNITi field can have
+     * an empty value, but that key is still needed to ensure the CUNIT dimensions match the data.To support those cases
+     * we allow empty strings to be stored. A {@code null} value is translated to an
+     * empty string, but a {@code null} key is still ignored.
+     * @see <a href="https://www.aanda.org/articles/aa/full/2002/45/aah3859/aah3859.right.html">FITS Standard</a>
      *
      * @param key   keyword name.
-     * @param value keyword value.
+     * @param value keyword value; {@code null} is treated as an empty string.
      */
     public void put(String key, String value) {
-        if (key != null && value != null && value.length() > 0) {
-            map.put(key, value);
+        if (key != null) {
+            map.put(key, (value == null) ? "" : value);
         }
     }
 
@@ -273,7 +280,7 @@ public class WCSKeywordsImpl implements WCSKeywords, Serializable {
 
     /**
      * Retrieve a String valued keyword from the keywords.
-     * If the keywords doesn't exists in the keywords,
+     * If the keyword doesn't exist in the keywords,
      * return the default value.
      *
      * @param key keyword name.
